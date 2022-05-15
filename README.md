@@ -23,3 +23,10 @@
 |16|최종 발표|
 
 ## ✨ Contributors
+<table>
+  <tr>
+  <td align="center"><a href="https://github.com/nanaeu"><img src="https://avatars3.githubusercontent.com/nanaeu?v=4?s=100" width="100px;" alt=""/><br /  ><sub><b>이유진</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/AshgrayIM"><img src="https://avatars0.githubusercontent.com/AshgrayIM?v=4?s=100" width="100px;" alt=""/><br /><sub><b>임창규</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/hhnn0"><img src="https://avatars0.githubusercontent.com/hhnn0?v=4?s=100" width="100px;" alt=""/><br /><sub><b>김현호</b></sub></a><br /></td>
+  </tr>
+</table>
