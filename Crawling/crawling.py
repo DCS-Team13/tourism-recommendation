@@ -1,33 +1,62 @@
 import requests
+import re
 from bs4 import BeautifulSoup
+from urllib.parse import quote
 
-url = 'https://search.naver.com/search.naver?where=influencer&sm=tab_jum&query='
+#iframe 제거 후 blog.naver.com 붙이기
+def delete_iframe(url):
+    res = requests.get(url)
+    res.raise_for_status() # 문제시 프로그램 종료
+    soup = BeautifulSoup(res.text, "lxml") 
 
-query = input('keyword : ')
+    src_url = "https://blog.naver.com/" + soup.iframe["src"]
+    
+    return src_url
 
-url = url + query.replace(' ', '+') + "+여행"
+# 본문 스크래핑
+def text_scraping(url):
+    res = requests.get(url)
+    res.raise_for_status() # 문제시 프로그램 종료
+    soup = BeautifulSoup(res.text, "lxml") 
 
-req = requests.get(url, format(query))
-#print(req.text)
+    if soup.find("div", attrs={"class":"se-main-container"}):
+        text = soup.find("div", attrs={"class":"se-main-container"}).get_text()
+        text = text.replace("\n","") #공백 제거
+        return text
+    elif soup.find("div", attrs={"id":"postViewArea"}):
+        text = soup.find("div", attrs={"id":"postViewArea"}).get_text()
+        text = text.replace("\n","") 
+        return text
+    else:
+        return 0
 
-soup = BeautifulSoup(req.text, 'html.parser')
+query = input('area : ')
+url = 'https://search.naver.com/search.naver?where=blog&query=' + quote(query.replace(' ', '+'))
+
+res = requests.get(url)
+res.raise_for_status() # 문제시 프로그램 종료
+soup = BeautifulSoup(res.text, "lxml") 
 #print(soup)
-
-print("URL : ", url.format(query))
-print("* '{} 여행' search result".format(query))
-print("---------------------------")
-
-titleList = soup.find_all('a', {'class' : 'name_link'})
-dscList = soup.find_all('a', {'class' : 'dsc_link'})
-
+posts = soup.find_all("div", attrs={"class":"total_area"})
+#print(posts)
 f = open(query + "_crawl.txt", 'w')
 
-for number in range(len(titleList)) :
-	print("title : ", titleList[number].text)
-	f.write(titleList[number].text.replace(query, '').replace('여행', '')+'\n')
-	print("dsc : ", dscList[number].text)
-	f.write(dscList[number].text.replace(query, '').replace('여행', '')+'\n')
-	print("href : ", titleList[number].get('href'))
-	print("---------------------------")
+for i in range(len(posts)) :
+    post_title = posts[i].find("a", attrs={"class":"api_txt_lines total_tit"}).get_text()
+    print("제목 :",post_title)
+    post_link = posts[i].find("a", attrs={"class":"api_txt_lines total_tit"})['href']
+    print("link :", post_link)
+
+    blog_p = re.compile("blog.naver.com")
+    blog_m = blog_p.search(post_link)
+    
+    if blog_m:
+        blog_text = text_scraping(delete_iframe(post_link))
+        if blog_text:
+            f.write(blog_text + '\n')
+            print(str(i+1)+"/"+str(len(posts))+" complete...")
+        else:
+            print(str(i+1)+"/"+str(len(posts))+" ...fail")
+        print("-"*50)
 
 f.close()
