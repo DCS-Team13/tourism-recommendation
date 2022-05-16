@@ -9,8 +9,7 @@
 <div>$pip install --upgrade chardet</div>
 
 <h3>#execution</h3>
-$python3 crawling.py
+<div>$python3 crawling.py</div>
 
 <h3>#result</h3>
-
-{query}_crawl.txt
+<div>{query}_crawl.txt</div>
