@@ -28,8 +28,8 @@
     <td>기존에 div class='se-main-container'만 불러왔으나<br>div id='postViewArea'도 추가</td>
   </tr>
   <tr>
-    <td></td>
-    <td></td>
+    <td>한번 크롤링에 최대 30개의 블로그만 탐색</td>
+    <td>블로그 검색은 페이지단위가 아님</td>
     <td></td>
   </tr>
 </table>
