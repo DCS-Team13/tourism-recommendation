@@ -14,4 +14,6 @@
 > - 빅데이터 처리 시 품질을 조금 포기하는 대신에 연산 속도가 빠른 것으로 하여 성능을 높이고자 함 (mecab을 선택한다고 키워드 추출 품질이 크게 나빠지지 않음)
 > - 크롤링 코드와 연동이 되어야 함 - 파이썬
 
-참고) https://iostream.tistory.com/144
+참고) 
+- 형태소 분석기 비교 https://iostream.tistory.com/144
+- Mecab 설치 https://lsjsj92.tistory.com/612
