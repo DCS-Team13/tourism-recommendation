@@ -18,3 +18,4 @@
 참고) 
 - 형태소 분석기 비교 https://iostream.tistory.com/144
 - Mecab 설치 https://lsjsj92.tistory.com/612
+- TF-IDF https://wikidocs.net/31698
