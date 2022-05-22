@@ -44,7 +44,7 @@ for n in range(repet) :
     url = 'https://search.naver.com/search.naver?where=blog&query=' + quote(query[n].replace(' ', '+'))
 
     f = open("loc.txt", 'a', encoding='UTF-8')
-    f.write("./" + area[n] + " " + query[n] + "_crawl.txt\n")
+    f.write("../Crawling/" + area[n] + " " + query[n] + "_crawl.txt\n")
     f.close()
 
     f = open(area[n] + " " + query[n] + "_crawl.txt", 'w', encoding='UTF-8')
