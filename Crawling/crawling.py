@@ -30,50 +30,58 @@ def text_scraping(url):
     else:
         return 0
 
-area = input('area : ')
-query = input('query : ')
-url = 'https://search.naver.com/search.naver?where=blog&query=' + quote(query.replace(' ', '+'))
+area = []
+query = []
 add_word = ["여행", "볼거리", "유명", "추천"]
 
-f = open("loc.txt", 'a', encoding='UTF-8')
-f.write("../" + area + " " + query + "_crawl.txt\n")
-f.close()
+repet = int(input('크롤링 진행할 키워드 수 : '))
 
-f = open(area + " " + query + "_crawl.txt", 'w', encoding='UTF-8')
+for n in range(repet) :
+    area.append(input('area : '))
+    query.append(input('query : '))
 
-all_post_link = []
+for n in range(repet) :
+    url = 'https://search.naver.com/search.naver?where=blog&query=' + quote(query[n].replace(' ', '+'))
 
-for i in range(len(add_word)) :
-    add_url = url + "+" + add_word[i]
+    f = open("loc.txt", 'a', encoding='UTF-8')
+    f.write("../" + area[n] + " " + query[n] + "_crawl.txt\n")
+    f.close()
 
-    res = requests.get(add_url)
-    res.raise_for_status() # 문제시 프로그램 종료
-    soup = BeautifulSoup(res.text, "lxml") 
-    #print(soup)
-    posts = soup.find_all("div", attrs={"class":"total_area"})
-    #print(posts)
+    f = open(area[n] + " " + query[n] + "_crawl.txt", 'w', encoding='UTF-8')
 
-    for j in range(len(posts)) :
-        post_title = posts[j].find("a", attrs={"class":"api_txt_lines total_tit"}).get_text()
-        print("제목 :",post_title)
-        post_link = posts[j].find("a", attrs={"class":"api_txt_lines total_tit"})['href']
-        print("link :", post_link)
+    all_post_link = []
 
-        if(all_post_link.count(post_link) == 0) :
-            all_post_link.append(post_link)
-            blog_p = re.compile("blog.naver.com")
-            blog_m = blog_p.search(post_link)
+    for i in range(len(add_word)) :
+        add_url = url + "+" + add_word[i]
 
-            if blog_m:
-                blog_text = text_scraping(delete_iframe(post_link))
-                if blog_text:
-                    f.write(blog_text.replace(add_word[i], "").replace(query, "") + '\n')
-                    print(str(i*len(posts)+j+1)+"/"+str(len(add_word)*len(posts))+" complete...")
-                else:
-                    print(str(i*len(posts)+j+1)+"/"+str(len(add_word)*len(posts))+" .....fail")
+        res = requests.get(add_url)
+        res.raise_for_status() # 문제시 프로그램 종료
+        soup = BeautifulSoup(res.text, "lxml") 
+        #print(soup)
+        posts = soup.find_all("div", attrs={"class":"total_area"})
+        #print(posts)
 
-        else:
-            print(str(i*len(posts)+j+1)+"/"+str(len(add_word)*len(posts))+" ..overlap..")
-        print("-"*50)
+        for j in range(len(posts)) :
+            post_title = posts[j].find("a", attrs={"class":"api_txt_lines total_tit"}).get_text()
+            print("제목 :",post_title)
+            post_link = posts[j].find("a", attrs={"class":"api_txt_lines total_tit"})['href']
+            print("link :", post_link)
 
-f.close()
+            if(all_post_link.count(post_link) == 0) :
+                all_post_link.append(post_link)
+                blog_p = re.compile("blog.naver.com")
+                blog_m = blog_p.search(post_link)
+
+                if blog_m:
+                    blog_text = text_scraping(delete_iframe(post_link))
+                    if blog_text:
+                        f.write(blog_text.replace(add_word[i], "").replace(area[n], "").replace(query[n], "") + '\n')
+                        print(str(n*len(add_word)*len(posts)+i*len(posts)+j+1)+"/"+str(repet*len(add_word)*len(posts))+" complete...")
+                    else:
+                        print(str(n*len(add_word)*len(posts)+i*len(posts)+j+1)+"/"+str(repet*len(add_word)*len(posts))+" .....fail")
+
+            else:
+                print(str(n*len(add_word)*len(posts)+i*len(posts)+j+1)+"/"+str(repet*len(add_word)*len(posts))+" ..overlap..")
+            print("-"*50)
+
+    f.close()
