@@ -9,7 +9,8 @@
 <div>$python3 crawling.py</div>
 
 <h2>#result</h2>
-<div>{query}_crawl.txt</div>
+<div>{area} {query}_crawl.txt</div>
+<div>loc.txt : _crawl.txt 파일 위치 저장 (형태소변환 시 일일히 작성하는 작업 자동화)</div>
 
 <h2>🛠Troubleshooting</h2>
 <body>
