@@ -15,7 +15,7 @@
 > - 빅데이터 처리 시 품질을 조금 포기하는 대신에 연산 속도가 빠른 것으로 하여 성능을 높이고자 함 (mecab을 선택한다고 키워드 추출 품질이 크게 나빠지지 않음)
 > - 크롤링 코드와 연동이 되어야 함 - 파이썬
 
-# 트러블 슈팅 기록
+# 트러블 슈팅
 ### 파이썬 matplotlib로 그래프 나타내면 한글 깨져서 나오는 문제 
 - 사용하고자 하는 한글 폰트의 경로를 알려준 후 그 폰트로 텍스트가 쓰여지게 해야한다. 
   - 윈도우 PC에서 폰트는 C:\Windows\Fonts에서 원하는 폰트의 영문명을 찾아 해당 경로 뒤에 붙인 뒤 다음 코드 추가
@@ -27,7 +27,14 @@
 > 
 > rc('font', family=font)
 
+### TF-IDF 분석 시, 일일이 함수로 구현하면 지역별 상위 키워드 20개로 제한할 수 있지만 정확성이 떨어진다. 반면 사이킷런 라이브러리를 사용하여 TF-IDF 벡터화하는 것이 더 정확하나, 지역별 상위 키워드 20개를 뽑아낼 수 없다.
+- 팀원들과 토의 후 결정
+
+
 참고) 
 - 형태소 분석기 비교 https://iostream.tistory.com/144
 - Mecab 설치 https://lsjsj92.tistory.com/612
-- TF-IDF https://wikidocs.net/31698
+- TF-IDF 
+  - https://wikidocs.net/31698
+  - https://aliencoder.tistory.com/27
+  - https://wiserloner.tistory.com/917
