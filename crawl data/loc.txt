@@ -70,7 +70,6 @@
 ../Crawling/제주 성산일출봉_crawl.txt
 ../Crawling/제주 올레길_crawl.txt
 ../Crawling/제주 만장굴_crawl.txt
-../Crawling/제주 해수욕장_crawl.txt
 ../Crawling/제주 한라산_crawl.txt
 ../Crawling/제주 비자림_crawl.txt
 ../Crawling/제주 영실_crawl.txt
