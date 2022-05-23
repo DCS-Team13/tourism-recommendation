@@ -2,8 +2,6 @@ from konlpy.tag import Mecab
 from collections import Counter
 import matplotlib.pyplot as plt
 from matplotlib import font_manager, rc
-import numpy as np
-from sklearn.feature_extraction.text import TfidfVectorizer
 import pandas as pd
 from math import log
 
@@ -93,7 +91,7 @@ def df(t):
     return df
 
 def idf(t):
-    return log(n/(df(t)+5))
+    return log(n/(df(t)+1))
 
 def tf_idf(t, d):
     return tf(t, d) * idf(t)
@@ -112,7 +110,7 @@ with open("../Crawling/loc.txt", 'r', encoding="UTF-8") as f:
             docs.append(text)
             count += 1
             print(loc, ", ", count)
-'''
+
 vocas = set()
 for loc in locs:
     morpho_analysis(loc.replace('\n',''), vocas)
@@ -139,20 +137,11 @@ idf_res = pd.DataFrame(idf_list, index=vocas, columns=["IDF"])
 tf_idf_list = [[tf_idf(vocas[j], docs[i]) for j in range(vocaLen)] for i in range(n)]
 tfidf_res = pd.DataFrame(tf_idf_list, columns=vocas)
 tfidf_res.plot()
+
 # 그래프 - 한글 깨짐 방지
 font_path = "C:/Windows/Fonts/NGULIM.TTF"
 font = font_manager.FontProperties(fname=font_path).get_name()
 rc('font', family=font)
 
 plt.show()
-print("Done.")'''
-
-def tfidf(docs):
-    tfidfv = TfidfVectorizer().fit(docs)
-    print(tfidfv.transform(docs).toarray())
-    print(len(tfidfv.vocabulary_))
-
-tfidf(docs)
 print("Done.")
-
-# morpho_analysis("../Crawling/대전 여행_crawl.txt")
