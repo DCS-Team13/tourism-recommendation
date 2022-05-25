@@ -1,10 +1,21 @@
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.io.BufferedReader;
-import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.StringTokenizer;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -12,103 +23,8 @@ import org.json.simple.parser.ParseException;
 
 
 public class Main {
-	public static void main(String[] args) throws IOException, ParseException {
-		String[] loc = getLoc("서울특별시", "송파구", "삼전동");
-//		System.out.println("x : " + loc[0] + ", y : " + loc[1]);
-		
-		String apiUrl = "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst";
-		// 홈페이지에서 받은 키
-		String serviceKey =  "eKie0nhicws1wZAZv19qeRVk7ecNfF3bvvpuck3t1SDVnXRJbAQLDN4EQPymUe6jKEQgK2ItAoENaDYjk6Ckyg%3D%3D";
-		String pageNo = "1";
-		String numOfRows = "1000"; // 한 페이지 결과 수
-		String type = "json"; // 타입
-		String baseDate = "20220517"; // 원하는 날짜. 보통 전날 11시로 하는 것 같습니다.
-		String baseTime = "2300"; // API 제공 시간
-		String nx = loc[0]; // 위도
-		String ny = loc[1]; // 경도 
-		
-		
-		StringBuilder urlBuilder = new StringBuilder(apiUrl);
-		urlBuilder.append("?" + URLEncoder.encode("serviceKey", "UTF-8") + "=" + serviceKey);
-		urlBuilder.append("&" + URLEncoder.encode("pageNo", "UTF-8") + "=" + URLEncoder.encode(pageNo, "UTF-8"));
-		urlBuilder.append("&" + URLEncoder.encode("numOfRows", "UTF-8") + "="+ URLEncoder.encode(numOfRows, "UTF-8"));
-		urlBuilder.append("&" + URLEncoder.encode("dataType", "UTF-8") + "=" + URLEncoder.encode(type, "UTF-8"));
-		urlBuilder.append("&" + URLEncoder.encode("base_date", "UTF-8") + "="+ URLEncoder.encode(baseDate, "UTF-8"));
-		urlBuilder.append("&" + URLEncoder.encode("base_time", "UTF-8") + "="+ URLEncoder.encode(baseTime, "UTF-8"));
-		urlBuilder.append("&" + URLEncoder.encode("nx", "UTF-8") + "=" + URLEncoder.encode(nx, "UTF-8"));
-		urlBuilder.append("&" + URLEncoder.encode("ny", "UTF-8") + "=" + URLEncoder.encode(ny, "UTF-8")+"&");
-
-		URL url = new URL(urlBuilder.toString());
-		
-		System.out.println(url);
-		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-		conn.setRequestMethod("GET");
-		conn.setRequestProperty("Content-type", "application/json");
-		System.out.println("Response code: " + conn.getResponseCode());
-		BufferedReader rd;
-		if(conn.getResponseCode() >= 200 && conn.getResponseCode() <= 300) {
-			rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-		} else {
-			rd = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
-		}
-		StringBuilder sb = new StringBuilder();
-		String line;
-		while ((line = rd.readLine()) != null) {
-			sb.append(line);
-		}
-		rd.close();
-		conn.disconnect();
-		String result= sb.toString();
-		System.out.println(result);
-		
-		///////////////////////////////////////////////
-		
-		JSONParser parser = new JSONParser(); 
-		JSONObject jsonObject = (JSONObject) parser.parse(result); 
-		JSONObject response = (JSONObject) jsonObject.get("response"); 
-		JSONObject body = (JSONObject) response.get("body"); 
-		JSONObject items = (JSONObject) body.get("items");
-		
-		JSONArray item = (JSONArray) items.get("item");
-		
-		String category;
-		JSONObject obj;
-		String day="";
-		String time="";
-		String tmn = "";
-		String tmx = "";
-		for(int i = 0 ; i < item.size(); i++) {
-			obj = (JSONObject) item.get(i);
-			Object fcstValue = obj.get("fcstValue");
-			Object fcstDate = obj.get("fcstDate");
-			Object fcstTime = obj.get("fcstTime");
-			category = (String)obj.get("category");
-			
-			if(category.equals("TMN")) {
-				tmn = fcstValue.toString();
-			}
-			if(category.equals("TMX")) {
-				tmx = fcstValue.toString();
-			}
-			if(!day.equals(fcstDate.toString()) && !day.equals("")) {
-				System.out.println("\n\t" + day + "의 최저기온은 " + tmn + ", 최고기온은 " + tmx + "\n");
-			}
-			
-			if(!day.equals(fcstDate.toString())) {
-				day=fcstDate.toString();
-			}
-			if(!time.equals(fcstTime.toString())) {
-				time=fcstTime.toString();
-				System.out.println(day+"  "+time);
-			}
-
-			System.out.print("\tcategory : "+ category);
-			System.out.print(", fcst_Value : "+ fcstValue);
-			System.out.print(", 날짜 : "+ fcstDate);
-			System.out.println(", 시간 : "+ fcstTime);
-		}
-		
-		getLoc("서울특별시","송파구");
+	public static void main(String[] args) throws IOException, ParseException{
+		sortFile("output");
 
 //			항목값	항목명		단위			압축bit수
 		
@@ -128,147 +44,149 @@ public class Main {
 //			WSD		풍속			m/s			10
 		
 	}
-	public static String[] getLoc(String top, String mid, String leaf) throws IOException, ParseException{
-		BufferedReader bf;
-		HttpURLConnection conn;
-		
-		JSONParser parser;
-		JSONArray jsonArr;
-		JSONObject jsonObj;
-		
-		String result;
-		
-		URL topUrl;
-		String topVal = top.replace(" ", "");
-		String topCode = "";
-		
-		URL midUrl;
-		String midVal = mid.replace(" ", "");
-		String midCode = "";
-		
-		URL leafUrl;
-		String leafVal = leaf.replace(" ", "");
-
-		String[] loc = new String[2];
-		
-		topUrl = new URL("https://www.kma.go.kr/DFSROOT/POINT/DATA/top.json.txt");
-		conn = (HttpURLConnection) topUrl.openConnection();
-		bf = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-		result = bf.readLine().toString();
-		bf.close();
-		
-		parser = new JSONParser(); 
-		jsonArr = (JSONArray) parser.parse(result);
-		for(int i = 0; i<jsonArr.size();i++) {
-			jsonObj = (JSONObject) jsonArr.get(i);
-			if(jsonObj.get("value").equals(topVal)) {
-				topCode = jsonObj.get("code").toString();
-				break;
-			}
+	public static class Location {
+		String x;
+		String y;
+		Location(String x, String y){
+			this.x = x;
+			this.y = y;
 		}
-		midUrl = new URL("https://www.kma.go.kr/DFSROOT/POINT/DATA/mdl." + topCode + ".json.txt");
-		conn = (HttpURLConnection) midUrl.openConnection();
-		bf = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-		result = bf.readLine().toString();
-		bf.close();
-		
-		parser = new JSONParser(); 
-		jsonArr = (JSONArray) parser.parse(result);
-		for(int i = 0; i<jsonArr.size();i++) {
-			jsonObj = (JSONObject) jsonArr.get(i);
-			if(jsonObj.get("value").equals(midVal)) {
-				midCode = jsonObj.get("code").toString();
-				break;
-			}
-		}
-		
-		leafUrl = new URL("http://www.kma.go.kr/DFSROOT/POINT/DATA/leaf." + midCode + ".json.txt");
-		conn = (HttpURLConnection) leafUrl.openConnection();
-		bf = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-		result = bf.readLine().toString();
-		bf.close();
-		
-		parser = new JSONParser(); 
-		jsonArr = (JSONArray) parser.parse(result);
-		for(int i = 0; i<jsonArr.size();i++) {
-			jsonObj = (JSONObject) jsonArr.get(i);
-			if(jsonObj.get("value").equals(leafVal)) {
-				midCode = jsonObj.get("code").toString();
-				loc[0] = jsonObj.get("x").toString();
-				loc[1] = jsonObj.get("y").toString();
-//				System.out.println("x : " + loc[0] + ", y : " + loc[1]);
-				break;
-			}
-		}
-		return loc;
 	}
 	
-	public static String[] getLoc(String top, String mid) throws IOException, ParseException{
-		BufferedReader bf;
-		HttpURLConnection conn;
-		
-		JSONParser parser;
-		JSONArray jsonArr;
-		JSONObject jsonObj;
-		
-		String result;
-		
-		URL topUrl;
-		String topVal = top.replace(" ", "");
-		String topCode = "";
-		
-		URL midUrl;
-		String midVal = mid.replace(" ", "");
-		String midCode = "";
-		
-		URL leafUrl;
+	public static class Tourism{
+		String name;
+		int weather;
+		Tourism(String name, int weather) {
+			this.name = name;
+			this.weather = weather;
+		}
+	}
+	public static void sortFile(String fileName) throws IOException, ParseException {
+		File loc = new File("./loc.txt");
+		Map<String, Location> map = new HashMap<String, Location>();
+		ArrayList<Tourism> list = new ArrayList<>();
+		BufferedReader bf = new BufferedReader(new FileReader(loc));
+		String str;
+		StringTokenizer st;
+		while((str = bf.readLine())!= null) {
+			st = new StringTokenizer(str,"\t");
+			String name = st.nextToken();
+			String y= st.nextToken();
+			String x = st.nextToken();
+			map.put(name ,new Location(x, y));
+		}
+		File output = new File("./output.txt");
+		Tourism tour;
+		bf = new BufferedReader(new FileReader(output));
+		while((str = bf.readLine())!= null) {
+			tour = new Tourism(str, getWeather("20220527", map.get(str)));
+			list.add(tour);
+		}
+		Collections.sort(list, new Comparator<Tourism>() {
 
-		String[] loc = new String[2];
-		
-		topUrl = new URL("https://www.kma.go.kr/DFSROOT/POINT/DATA/top.json.txt");
-		conn = (HttpURLConnection) topUrl.openConnection();
-		bf = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-		result = bf.readLine().toString();
-		bf.close();
-		
-		parser = new JSONParser(); 
-		jsonArr = (JSONArray) parser.parse(result);
-		for(int i = 0; i<jsonArr.size();i++) {
-			jsonObj = (JSONObject) jsonArr.get(i);
-			if(jsonObj.get("value").equals(topVal)) {
-				topCode = jsonObj.get("code").toString();
-				break;
+			@Override
+			public int compare(Tourism t1, Tourism t2) {
+				// TODO Auto-generated method stub
+				return t1.weather - t2.weather;
 			}
+		});
+		for(Tourism tourism : list) {
+			System.out.println(tourism.name + "\t" + tourism.weather);
 		}
-		midUrl = new URL("https://www.kma.go.kr/DFSROOT/POINT/DATA/mdl." + topCode + ".json.txt");
-		conn = (HttpURLConnection) midUrl.openConnection();
-		bf = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-		result = bf.readLine().toString();
-		bf.close();
+	}
+	
+	public static int getWeather(String date, Location location) throws IOException, ParseException {
+		Calendar c1 = new GregorianCalendar();
+
+		c1.add(Calendar.DATE, -1);
 		
-		parser = new JSONParser(); 
-		jsonArr = (JSONArray) parser.parse(result);
-		for(int i = 0; i<jsonArr.size();i++) {
-			jsonObj = (JSONObject) jsonArr.get(i);
-			if(jsonObj.get("value").equals(midVal)) {
-				midCode = jsonObj.get("code").toString();
-				break;
+//		System.out.println("x : " + loc[0] + ", y : " + loc[1]);
+		
+		String apiUrl = "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst";
+		// 홈페이지에서 받은 키
+		String serviceKey =  "eKie0nhicws1wZAZv19qeRVk7ecNfF3bvvpuck3t1SDVnXRJbAQLDN4EQPymUe6jKEQgK2ItAoENaDYjk6Ckyg%3D%3D";
+		String pageNo = "1";
+		String numOfRows = "1000"; // 한 페이지 결과 수
+		String type = "json"; // 타입
+		String baseDate = new SimpleDateFormat("yyyyMMdd").format(c1.getTime()); // 원하는 날짜. 보통 전날 11시로 하는 것 같습니다.
+		String baseTime = "2300"; // API 제공 시간
+		String nx = location.x; // 위도
+		String ny = location.y; // 경도 
+		
+		
+		StringBuilder urlBuilder = new StringBuilder(apiUrl);
+		urlBuilder.append("?" + URLEncoder.encode("serviceKey", "UTF-8") + "=" + serviceKey);
+		urlBuilder.append("&" + URLEncoder.encode("pageNo", "UTF-8") + "=" + URLEncoder.encode(pageNo, "UTF-8"));
+		urlBuilder.append("&" + URLEncoder.encode("numOfRows", "UTF-8") + "="+ URLEncoder.encode(numOfRows, "UTF-8"));
+		urlBuilder.append("&" + URLEncoder.encode("dataType", "UTF-8") + "=" + URLEncoder.encode(type, "UTF-8"));
+		urlBuilder.append("&" + URLEncoder.encode("base_date", "UTF-8") + "="+ URLEncoder.encode(baseDate, "UTF-8"));
+		urlBuilder.append("&" + URLEncoder.encode("base_time", "UTF-8") + "="+ URLEncoder.encode(baseTime, "UTF-8"));
+		urlBuilder.append("&" + URLEncoder.encode("nx", "UTF-8") + "=" + URLEncoder.encode(nx, "UTF-8"));
+		urlBuilder.append("&" + URLEncoder.encode("ny", "UTF-8") + "=" + URLEncoder.encode(ny, "UTF-8")+"&");
+
+		URL url = new URL(urlBuilder.toString());
+		
+//		System.out.println(url);
+		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+		conn.setRequestMethod("GET");
+		conn.setRequestProperty("Content-type", "application/json");
+//		System.out.println("Response code: " + conn.getResponseCode());
+		BufferedReader rd;
+		if(conn.getResponseCode() >= 200 && conn.getResponseCode() <= 300) {
+			rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+		} else {
+			rd = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
+		}
+		StringBuilder sb = new StringBuilder();
+		String line;
+		while ((line = rd.readLine()) != null) {
+			sb.append(line);
+		}
+		rd.close();
+		conn.disconnect();
+		String result= sb.toString();
+//		System.out.println(result);
+		
+		///////////////////////////////////////////////
+		
+		JSONParser parser = new JSONParser(); 
+		JSONObject jsonObject = (JSONObject) parser.parse(result); 
+		JSONObject response = (JSONObject) jsonObject.get("response"); 
+		JSONObject body = (JSONObject) response.get("body"); 
+		JSONObject items = (JSONObject) body.get("items");
+		
+		JSONArray item = (JSONArray) items.get("item");
+		
+		String category;
+		JSONObject obj;
+		String day=date;
+		String time="";
+		int sky = 0;
+		for(int i = 0 ; i < item.size(); i++) {
+			obj = (JSONObject) item.get(i);
+			Object fcstValue = obj.get("fcstValue");
+			Object fcstDate = obj.get("fcstDate");
+			Object fcstTime = obj.get("fcstTime");
+			category = (String)obj.get("category");
+			
+			if(!day.equals(fcstDate.toString())) {
+				continue;
 			}
+			
+			if(!time.equals(fcstTime.toString())) {
+				time=fcstTime.toString();
+//				System.out.println(day+"  "+time);
+			}
+			if(category.equals("SKY")) {
+				sky += Integer.parseInt(fcstValue.toString());
+			}
+
+//			System.out.print("\tcategory : "+ category);
+//			System.out.print(", fcst_Value : "+ fcstValue);
+//			System.out.print(", 날짜 : "+ fcstDate);
+//			System.out.println(", 시간 : "+ fcstTime);
 		}
-		
-		leafUrl = new URL("http://www.kma.go.kr/DFSROOT/POINT/DATA/leaf." + midCode + ".json.txt");
-		conn = (HttpURLConnection) leafUrl.openConnection();
-		bf = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-		result = bf.readLine().toString();
-		bf.close();
-		
-		parser = new JSONParser(); 
-		jsonArr = (JSONArray) parser.parse(result);
-		jsonObj = (JSONObject) jsonArr.get(jsonArr.size()/2);
-		loc[0] = jsonObj.get("x").toString();
-		loc[1] = jsonObj.get("y").toString();
-//		System.out.println("동 : " + jsonObj.get("value") + ", x : " + loc[0] + ", y : " + loc[1]);
-		
-		return loc;
+//		System.out.println(sky);
+		return sky;
 	}
 }
