@@ -1,5 +1,8 @@
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
+import time
+
+start = time.time()  # 시작 시간 저장
 
 # 각 지역별 키워드 저장할 딕셔너리
 region_keywords = dict()
@@ -32,4 +35,4 @@ def tfidf(docs):
 
 result = tfidf(docs)
 np.savetxt("tfidf.txt", result, fmt='%f', delimiter=' ')
-print("Done.")
+print("Time: ", time.time() - start) # seconds - 56초
