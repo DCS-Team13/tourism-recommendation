@@ -10,7 +10,6 @@
 - Beautiful Soup 
 - 기상청_단기예보 ((구)_동네예보) 조회서비스 (https://www.data.go.kr/data/15084084/openapi.do)
 - Apache Mahout 라이브러리 
-- KOMORAN 라이브러리 (형태소 분석)
 
 ## 📆 일정
 |주차|내용|
