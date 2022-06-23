@@ -30,20 +30,23 @@ def text_scraping(url):
     else:
         return 0
 
-area = []
-query = []
 add_word = ["여행", "볼거리", "유명", "추천", "명소", "가볼만한", "특징", "특색", "특산물", "특성", "특히 볼만한", "가이드", "여행코스"]
 
-repet = int(input('크롤링 진행할 키워드 수 : '))
+print('지역 입력후 크롤링 진행할 키워드들을 입력해주세요 (입력을 마쳤다면 exit를 입력하세요)')
 
-for n in range(repet) :
-    area.append(input('area : '))
+area = input("area : ")
+query = []
+repet = True;
+
+while(repet) :
     query.append(input('query : '))
+    if(query[len(query) - 1] == 'exit') :
+        repet = False;
 
-for n in range(repet) :
+for n in range(len(query) - 1) :
     url = 'https://search.naver.com/search.naver?where=blog&query=' + quote(query[n].replace(' ', '+'));
 
-    f = open(area[n] + " " + query[n] + "_crawl.txt", 'w', encoding='UTF-8')
+    f = open(area + " " + query[n] + "_crawl.txt", 'w', encoding='UTF-8')
 
     all_post_link = []
 
@@ -71,13 +74,13 @@ for n in range(repet) :
                 if blog_m:
                     blog_text = text_scraping(delete_iframe(post_link))
                     if blog_text:
-                        f.write(blog_text.replace(add_word[i], "").replace(area[n], "").replace(query[n], "") + '\n')
-                        print(str(n*len(add_word)*len(posts)+i*len(posts)+j+1)+"/"+str(repet*len(add_word)*len(posts))+" complete...")
+                        f.write(blog_text.replace(add_word[i], "").replace(area, "").replace(query[n], "") + '\n')
+                        print(str(n*len(add_word)*len(posts)+i*len(posts)+j+1)+"/"+str((len(query)-1)*len(add_word)*len(posts))+" complete...")
                     else:
-                        print(str(n*len(add_word)*len(posts)+i*len(posts)+j+1)+"/"+str(repet*len(add_word)*len(posts))+" .....fail")
+                        print(str(n*len(add_word)*len(posts)+i*len(posts)+j+1)+"/"+str((len(query)-1)*len(add_word)*len(posts))+" .....fail")
 
             else:
-                print(str(n*len(add_word)*len(posts)+i*len(posts)+j+1)+"/"+str(repet*len(add_word)*len(posts))+" ..overlap..")
+                print(str(n*len(add_word)*len(posts)+i*len(posts)+j+1)+"/"+str((len(query)-1)*len(add_word)*len(posts))+" ..overlap..")
             print("-"*50)
 
     f.close()
