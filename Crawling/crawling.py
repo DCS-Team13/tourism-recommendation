@@ -32,7 +32,7 @@ def text_scraping(url):
 
 area = []
 query = []
-add_word = ["여행", "볼거리", "유명", "추천"]
+add_word = ["여행", "볼거리", "유명", "추천", "명소", "가볼만한", "특징", "특색", "특산물", "특성", "특히 볼만한", "가이드", "음식"]
 
 repet = int(input('크롤링 진행할 키워드 수 : '))
 
@@ -41,11 +41,7 @@ for n in range(repet) :
     query.append(input('query : '))
 
 for n in range(repet) :
-    url = 'https://search.naver.com/search.naver?where=blog&query=' + quote(query[n].replace(' ', '+'))
-
-    f = open("loc.txt", 'a', encoding='UTF-8')
-    f.write("../Crawling/" + area[n] + " " + query[n] + "_crawl.txt\n")
-    f.close()
+    url = 'https://search.naver.com/search.naver?where=blog&query=' + quote(query[n].replace(' ', '+'));
 
     f = open(area[n] + " " + query[n] + "_crawl.txt", 'w', encoding='UTF-8')
 
